@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Vattenutkast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --abyss:#06141f;
+    --deep:#0d2436;
+    --surface:#12303f;
+    --aqua:#38e1d6;
+    --blue:#4a9fd4;
+    --text:#e8f4f5;
+    --muted:#7fa3b0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(120% 90% at 50% -10%, #0e2a3c 0%, var(--abyss) 60%);
+    color:var(--text);
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:max(28px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));
+    overflow:hidden;
+  }
+  header{text-align:center;margin-bottom:8px;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--aqua);font-weight:600;margin-bottom:10px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:800;font-size:clamp(32px,9vw,44px);line-height:.95;
+    letter-spacing:-.02em;
+  }
+  .sub{color:var(--muted);font-size:14px;margin-top:12px;max-width:300px;line-height:1.5;}
+
+  /* play stage */
+  .stage{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    width:100%;position:relative;min-height:280px;
+  }
+  .ripple{
+    position:absolute;border:1.5px solid var(--aqua);border-radius:50%;
+    width:180px;height:180px;opacity:0;pointer-events:none;
+  }
+  .playing .ripple{animation:ring 2.4s ease-out infinite;}
+  .playing .ripple:nth-child(2){animation-delay:.8s;}
+  .playing .ripple:nth-child(3){animation-delay:1.6s;}
+  @keyframes ring{
+    0%{transform:scale(.55);opacity:.7;}
+    100%{transform:scale(2.3);opacity:0;}
+  }
+  .btn{
+    position:relative;z-index:2;
+    width:190px;height:190px;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 50% 38%, #1a4a5e, var(--deep));
+    box-shadow:0 0 0 1px rgba(56,225,214,.25), 0 18px 50px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    color:var(--text);transition:transform .15s ease, box-shadow .3s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .playing .btn{
+    background:radial-gradient(circle at 50% 38%, #1c6a72, #0c3340);
+    box-shadow:0 0 0 1px rgba(56,225,214,.6), 0 0 60px -8px rgba(56,225,214,.5);
+  }
+  .btn .glyph{font-size:40px;line-height:1;}
+  .btn .word{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+    font-size:18px;letter-spacing:.02em;
+  }
+  .countdown{font-variant-numeric:tabular-nums;font-size:13px;color:var(--aqua);min-height:16px;}
+
+  /* mode toggle */
+  .modes{display:flex;gap:8px;background:rgba(255,255,255,.04);padding:5px;border-radius:14px;margin-bottom:18px;}
+  .mode{
+    border:none;background:transparent;color:var(--muted);
+    font-family:'Inter';font-size:13px;font-weight:600;
+    padding:9px 16px;border-radius:10px;cursor:pointer;transition:.2s;
+  }
+  .mode.active{background:var(--surface);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.05);}
+
+  /* tips */
+  .tips{
+    width:100%;max-width:340px;margin-top:22px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  }
+  .tip{text-align:center;}
+  .tip .ic{font-size:22px;}
+  .tip .t{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.35;}
+  .warn{
+    color:var(--muted);font-size:11.5px;margin-top:22px;max-width:320px;
+    text-align:center;line-height:1.5;
+  }
+  .warn b{color:var(--blue);font-weight:600;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">165&nbsp;Hz · ljudvåg</div>
+    <h1>Vattenutkast</h1>
+  </header>
+
+  <div class="modes">
+    <button class="mode active" data-mode="sweep">Svep 50–500&nbsp;Hz</button>
+    <button class="mode" data-mode="fixed">165&nbsp;Hz</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="ripple"></div>
+    <div class="ripple"></div>
+    <div class="ripple"></div>
+    <button class="btn" id="btn">
+      <span class="glyph">💧</span>
+      <span class="word">Starta</span>
+      <span class="countdown" id="cd"></span>
+    </button>
+  </div>
+
+  <div class="tips">
+    <div class="tip"><div class="ic">🔊</div><div class="t">Maxa volymen</div></div>
+    <div class="tip"><div class="ic">🔕</div><div class="t">Tyst läge av</div></div>
+    <div class="tip"><div class="ic">⬇️</div><div class="t">Högtalaren nedåt</div></div>
+  </div>
+
+  <p class="warn">Använd <b>inte</b> hörlurar. Upprepa 2–3 gånger om ljudet fortfarande är dovt. Hjälper inte mot en rejält dränkt telefon – låt den i så fall torka stående och kolla med verkstad.</p>
+
+<script>
+  const btn = document.getElementById('btn');
+  const stage = document.getElementById('stage');
+  const cd = document.getElementById('cd');
+  const word = btn.querySelector('.word');
+  const glyph = btn.querySelector('.glyph');
+  let mode = 'sweep';
+  let ctx, osc, gain, timer, running = false;
+  const DURATION = 25;
+
+  document.querySelectorAll('.mode').forEach(m=>{
+    m.addEventListener('click',()=>{
+      if(running) return;
+      document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));
+      m.classList.add('active');
+      mode = m.dataset.mode;
+    });
+  });
+
+  function stop(){
+    running = false;
+    if(osc){try{osc.stop();}catch(e){}}
+    if(ctx){ctx.close();ctx=null;}
+    clearInterval(timer);
+    stage.classList.remove('playing');
+    word.textContent='Starta';
+    glyph.textContent='💧';
+    cd.textContent='';
+  }
+
+  function start(){
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime+0.15);
+    osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.connect(gain).connect(ctx.destination);
+
+    const t = ctx.currentTime;
+    if(mode==='fixed'){
+      osc.frequency.setValueAtTime(165, t);
+    }else{
+      // repeated sweep across 50–500 Hz to catch water wherever it sits
+      const cycle = 3.2;
+      for(let s=0;s<DURATION;s+=cycle){
+        osc.frequency.setValueAtTime(50, t+s);
+        osc.frequency.linearRampToValueAtTime(500, t+s+cycle/2);
+        osc.frequency.linearRampToValueAtTime(50, t+s+cycle);
+      }
+    }
+    osc.start();
+
+    running = true;
+    stage.classList.add('playing');
+    word.textContent='Stoppa';
+    glyph.textContent='〰️';
+
+    let left = DURATION;
+    cd.textContent = left+' s';
+    timer = setInterval(()=>{
+      left--;
+      cd.textContent = left+' s';
+      if(left<=0){
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.2);
+        setTimeout(stop,250);
+      }
+    },1000);
+  }
+
+  btn.addEventListener('click',()=> running ? stop() : start());
+</script>
+</body>
+</html>
