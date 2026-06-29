@@ -27,3 +27,17 @@ Varje push till `main` uppdaterar sidan automatiskt.
 
 Öppna sidan i mobilen, maxa volymen, stäng av tyst läge och håll högtalaren
 nedåt. Använd **inte** hörlurar.
+
+## Lägg till på hemskärmen (app-läge)
+
+Sidan är en installerbar webbapp (PWA) med manifest, ikoner och en service
+worker som cachar app-skalet så att den funkar offline efter första besöket.
+
+- **iPhone (Safari):** Dela-knappen → *Lägg till på hemskärmen*.
+- **Android (Chrome):** menyn ⋮ → *Installera app* / *Lägg till på hemskärmen*.
+
+Appen öppnas då i helskärm utan adressfält, med egen ikon och namnet
+"Vattenutkast".
+
+Relaterade filer: [`manifest.webmanifest`](manifest.webmanifest),
+[`sw.js`](sw.js) och ikonerna i [`icons/`](icons/).
