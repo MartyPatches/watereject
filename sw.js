@@ -1,6 +1,6 @@
 // Service worker för Vattenutkast – cachar app-skalet så sidan funkar offline.
 // Höj versionen när du ändrar filerna nedan för att tvinga uppdatering.
-const CACHE = 'vattenutkast-v1';
+const CACHE = 'vattenutkast-v2';
 const ASSETS = [
   '.',
   'index.html',
